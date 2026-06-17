@@ -1,0 +1,1018 @@
+{
+  "info": {
+    "_postman_id": "7d2cd7eb-8ab3-428e-894e-0c495ff07ef2",
+    "name": "YARNIX Common Backend API Doc",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29786982",
+    "_collection_link": "https://go.postman.co/collection/29786982-7d2cd7eb-8ab3-428e-894e-0c495ff07ef2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "API",
+      "item": [
+        {
+          "name": "V1",
+          "item": [
+            {
+              "name": "Health",
+              "item": [
+                {
+                  "name": "health",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/health",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "health"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Auth",
+              "item": [
+                {
+                  "name": "Notification",
+                  "item": [
+                    {
+                      "name": "api/v1/notifications - auth",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{local_url}}/api/v1/notifications",
+                          "host": [
+                            "{{local_url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "notifications"
+                          ]
+                        },
+                        "description": "notifications?page=2&limit=10"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "api/v1/notifications/read-all - auth",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{local_url}}/api/v1/notifications/read-all",
+                          "host": [
+                            "{{local_url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "notifications",
+                            "read-all"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "api/v1/notifications/read/ (notification id/uuid) - auth",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{local_url}}/api/v1/notifications/read/1",
+                          "host": [
+                            "{{local_url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "notifications",
+                            "read",
+                            "1"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "api/v1/notifications/delete (notifications id/uuid) - auth",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{local_url}}/api/v1/notifications/delete/1",
+                          "host": [
+                            "{{local_url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "notifications",
+                            "delete",
+                            "1"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "Super Admin",
+                  "item": [
+                    {
+                      "name": "api/v1/auth/register/staff - super admin",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}} ",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n    \"email\": \"socialcontrolnirmal1@gmail.com\",\r\n    \"password\": \"SecurePass123!\",\r\n    \"confirmPassword\": \"SecurePass123!\",\r\n    \"fullName\": \"Jane Moderator\",\r\n    \"employeeId\": \"EMP002\",\r\n    \"address\": \"123 Main St, Colombo\",\r\n    \"nic\": \"123456789V\",\r\n    \"phoneNo\": \"+94771234569\",\r\n    \"role\": \"MODERATOR\"\r\n    // \"role\": \"ADMIN\"\r\n}"
+                        },
+                        "url": {
+                          "raw": "{{local_url}}/api/v1/auth/register/staff",
+                          "host": [
+                            "{{local_url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "auth",
+                            "register",
+                            "staff"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "api/v1/auth/refresh - public",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Parse the response",
+                          "const response = pm.response.json();",
+                          "",
+                          "// Check if refresh was successful",
+                          "if (response.success && response.data) {",
+                          "    // Update the access token with the new one",
+                          "    pm.environment.set(\"access_token\", response.data.accessToken);",
+                          "    ",
+                          "    // Update the refresh token if a new one is provided",
+                          "    if (response.data.refreshToken) {",
+                          "        pm.environment.set(\"refresh_token\", response.data.refreshToken);",
+                          "    }",
+                          "    ",
+                          "    console.log(\"Tokens refreshed successfully!\");",
+                          "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}} ",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"refreshToken\":\"{{refresh_token}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/refresh",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/login - public",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Parse the response",
+                          "const response = pm.response.json();",
+                          "",
+                          "// Check if login was successful",
+                          "if (response.success && response.data) {",
+                          "    // Set the access token",
+                          "    pm.environment.set(\"access_token\", response.data.accessToken);",
+                          "    ",
+                          "    // Set the refresh token",
+                          "    pm.environment.set(\"refresh_token\", response.data.refreshToken);",
+                          "    ",
+                          "    console.log(\"Tokens saved successfully!\");",
+                          "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"nirmalwishwantha@gmail.com\",\r\n    // \"email\": \"socialcontrolnirmal@gmail.com\",\r\n    // \"email\": \"wishwanthapriyadharshana@gmail.com\",\r\n    \"password\": \"SuperAdmin1@1\"\r\n    // \"password\": \"SuperAdmin1@\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/login",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/register - public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"socialcontrolnirmal@gmail.com\",\r\n    \"password\": \"SuperAdmin1@1\",\r\n    \"confirmPassword\": \"SuperAdmin1@1\",\r\n    \"fullName\": \"John Doe\",\r\n    \"phoneNo\": \"+94771234568\",\r\n    \"address\": \"123 Main St, Colombo\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/register",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/logout - auth",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/logout",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "logout"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/details - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/details",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "details"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/change-password - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"oldPassword\": \"SuperAdmin1@1\",\r\n    \"newPassword\": \"SuperAdmin1@\",\r\n    \"confirmPassword\": \"SuperAdmin1@\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/change-password",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "change-password"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/forgot-password - public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"nirmalwishwantha@gmail.com\"\r\n    // \"email\": \"socialcontrolnirmal@gmail.com\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/forgot-password",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "forgot-password"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/reset-password - public",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"nirmalwishwantha@gmail.com\",\r\n  \"otp\": \"5333\", \r\n  \"newPassword\": \"SuperAdmin1@1\",\r\n  \"confirmPassword\": \"SuperAdmin1@1\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/reset-password",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "reset-password"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/users/profile-update - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"fullName\": \"John Doe Updated\",\r\n    \"address\": \"456 New St, Kandy\",\r\n    \"phoneNo\": \"+94771234568\",\r\n    \"profileImage\": \"https://...\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/users/profile-update",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "users",
+                        "profile-update"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/users/profile-delete - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/users/profile-delete",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "users",
+                        "profile-delete"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/sessions - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/sessions",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "sessions"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/sessions/revoke/ (session id/uuid) - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/sessions/revoke/0b5bb0b4-4267-44db-9861-acf429e2acb9",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "sessions",
+                        "revoke",
+                        "0b5bb0b4-4267-44db-9861-acf429e2acb9"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/sessions/revoke-all - auth",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{access_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/sessions/revoke-all",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "sessions",
+                        "revoke-all"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/email-verify/send -public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\":\"nirmalwishwantha@gmail.com\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/email-verify/send",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "email-verify",
+                        "send"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "api/v1/auth/email-verify/check -public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"otp\": \"9953\",\r\n    \"token\": \"eyJlbWFpbCI6Im5pcm1hbHdpc2h3YW50aGFAZ21haWwuY29tIiwiZXhwaXJlc0F0IjoiMTc3MTgzOTU4MTk1MCJ9.388090047f363dddff9b25eb32bc80ab1c203bb70932e47ae5fa6ee0597223e2\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{local_url}}/api/v1/auth/email-verify/check",
+                      "host": [
+                        "{{local_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "email-verify",
+                        "check"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
