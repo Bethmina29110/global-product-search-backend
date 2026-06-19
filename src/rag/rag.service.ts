@@ -27,15 +27,62 @@ export class RagService {
       });
     }
 
-    // AI evaluates the pre-structured SerpApi products
-    const extractedData = await this.geminiService.extractProducts(query, structuredProducts);
+    let extractedData: any = null;
+    let finalProducts: any[] = [];
 
-    let finalProducts = extractedData.products || [];
+    try {
+      // AI evaluates the pre-structured SerpApi products
+      extractedData = await this.geminiService.extractProducts(query, structuredProducts);
+      finalProducts = extractedData.products || [];
+    } catch (error: any) {
+      console.warn('Gemini AI failed, falling back to raw search results:', error.message);
+      
+      // Fallback: Mock the AI fields so the app doesn't crash
+      finalProducts = structuredProducts.map((p: any, index: number) => ({
+        title: p.title,
+        category: 'Uncategorized (AI Fallback)',
+        specs: {},
+        confidence: Math.max(1, 100 - (index * 5)),
+        summary: 'AI temporarily unavailable. Showing raw organic search results.',
+        score: Math.max(1, 10 - index)
+      }));
+
+      extractedData = {
+        topRecommendation: {
+          title: finalProducts[0]?.title || 'No products found',
+          reason: 'Top organic result (AI Fallback).',
+          score: finalProducts[0]?.score || 0
+        },
+        products: finalProducts
+      };
+    }
+
+    // Helper function to dynamically build a search link using the store name and product title
+    const generateStoreLink = (store: string, title: string) => {
+      const query = encodeURIComponent(title);
+      const storeName = (store || '').toLowerCase();
+      
+      // INDUSTRY STANDARD: You must map the unique search paths for major retailers
+      if (storeName.includes('amazon')) return `https://www.amazon.com/s?k=${query}`;
+      if (storeName.includes('walmart')) return `https://www.walmart.com/search?q=${query}`;
+      if (storeName.includes('best buy') || storeName.includes('bestbuy')) return `https://www.bestbuy.com/site/searchpage.jsp?st=${query}`;
+      if (storeName.includes('target')) return `https://www.target.com/s?searchTerm=${query}`;
+      if (storeName.includes('ebay')) return `https://www.ebay.com/sch/i.html?_nkw=${query}`;
+      if (storeName.includes('h&m') || storeName.includes('hm')) return `https://www2.hm.com/en_us/search-results.html?q=${query}`;
+      if (storeName.includes('dick')) return `https://www.dickssportinggoods.com/search/SearchDisplay?searchTerm=${query}`;
+      if (storeName.includes('old navy')) return `https://oldnavy.gap.com/browse/search.do?searchText=${query}`;
+      if (storeName.includes('gap')) return `https://www.gap.com/browse/search.do?searchText=${query}`;
+      if (storeName.includes('foot locker')) return `https://www.footlocker.com/search?query=${query}`;
+      if (storeName.includes('michaels')) return `https://www.michaels.com/search?q=${query}`;
+
+      // If we don't know the exact search URL format for this specific store, fallback to Google Search
+      return `https://www.google.com/search?q=${encodeURIComponent(store + ' ' + title)}`;
+    };
 
     // Merge guaranteed data directly from SerpApi search results
     finalProducts = finalProducts.map((aiProduct: any) => {
       const originalProduct = structuredProducts.find((p: any) => p.title === aiProduct.title);
-
+      
       if (!originalProduct) {
         console.log('\n--- Title Mismatch Detected ---');
         console.log('AI Title:', aiProduct.title);
@@ -45,13 +92,16 @@ export class RagService {
         console.log(JSON.stringify(originalProduct, null, 2));
       }
 
+      const store = originalProduct?.store || 'Amazon';
+      const title = originalProduct?.title || aiProduct.title;
+
       return {
         ...aiProduct,
-        productUrl: originalProduct?.productUrl || originalProduct?.link || '',
+        productUrl: generateStoreLink(store, title),
         imageUrl: originalProduct?.imageUrl || '',
         price: originalProduct?.price || '',
         rating: originalProduct?.rating || null,
-        store: originalProduct?.store || '',
+        store: store,
       };
     });
 
