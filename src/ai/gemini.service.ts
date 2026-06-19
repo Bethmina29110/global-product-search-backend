@@ -22,32 +22,30 @@ export class GeminiService {
     try {
       const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      // Pass the JSON-stringified structured products from SerpApi directly to the prompt
       const context = JSON.stringify(structuredProducts, null, 2);
 
       const prompt = `
 User Query: "${query}"
 
 You are an expert shopping assistant. I am providing you with a list of actual products retrieved from Google Shopping.
-Your task is to evaluate these products based on the user's query, rank them, and return a strict JSON response.
+Your task is to evaluate these products based on the user's query, extract specifications, rank them, and return a strict JSON response.
 
 Return ONLY valid JSON. Do not use markdown backticks.
 
 Schema:
 {
   "topRecommendation": {
-    "title": "string",
-    "reason": "string (Why is this the best choice?)",
+    "title": "string (Must exactly match the input title)",
+    "reason": "string (Why is this the best choice? Consider price, specs, and ratings)",
     "score": 10
   },
   "products": [
     {
-      "title": "string (Must match input)",
-      "imageUrl": "string (Must match input)",
-      "price": "string or number (Must match input)",
-      "rating": 4.5,
-      "store": "string (Must match input)",
-      "productUrl": "string (Must match input)",
+      "title": "string (Must exactly match the input title)",
+      "category": "string (Dynamic category based on the product, e.g., 'Running Shoes', 'Smartphones', 'Gaming Laptops')",
+      "specs": {
+        "key": "string (Extract any highly relevant technical specifications or details dynamically as key-value pairs, e.g., {'RAM': '16GB', 'Material': 'Leather'})"
+      },
       "confidence": 95,
       "summary": "string (A personalized sentence on why this fits the user's need)",
       "score": 9
@@ -56,10 +54,11 @@ Schema:
 }
 
 Rules:
-* Products array must contain the items from the provided list, enriched with your 'confidence', 'summary', and 'score'.
+* Products array must contain the items from the provided list, enriched with your 'confidence', 'summary', 'category', 'specs', and 'score'.
+* 'title' MUST EXACTLY match the title from the input context so it can be mapped back to the database.
 * 'confidence' is an integer from 1 to 100 representing how well the product matches the user query.
-* 'score' is an integer from 1 to 10 representing overall product quality/relevance.
-* Retain the exact 'imageUrl', 'price', 'store', and 'productUrl' provided in the input context.
+* 'score' is an integer from 1 to 10. Prioritize lower price, higher ratings, better specifications, and exact match with user intent.
+* Extract 'specs' as a dynamic dictionary of the most important product specifications. Only include specs that are explicitly mentioned or clearly inferable. Do not invent specs.
 * Sort the 'products' array by 'score' descending.
 
 Structured Products Context:

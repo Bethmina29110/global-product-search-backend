@@ -31,6 +31,12 @@ export class ProductRecommendationDto {
   productUrl!: string;
 
   @Expose()
+  category!: string;
+
+  @Expose()
+  specs?: Record<string, string>;
+
+  @Expose()
   confidence!: number;
 
   @Expose()

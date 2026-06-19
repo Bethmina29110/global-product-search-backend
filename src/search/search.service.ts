@@ -38,7 +38,7 @@ export class SearchService {
         rating: result.rating || null,
         imageUrl: result.thumbnail,
         store: result.source,
-        productUrl: result.link,
+        productUrl: result.product_link || result.link || '',
       }));
 
       return {
