@@ -10,7 +10,7 @@ export class RagService {
   ) {}
 
   async search(query: string) {
-    const searchResults = this.searchService.search(query);
+    const searchResults = await this.searchService.search(query);
     
     const products = searchResults.results || [];
     
