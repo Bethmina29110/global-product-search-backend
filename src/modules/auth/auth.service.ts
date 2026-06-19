@@ -66,10 +66,15 @@ export class AuthService {
       expiresIn: this.configService.get<string>('jwt.expiresIn') as any,
     });
 
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('jwt.refreshSecret'),
+      expiresIn: this.configService.get<string>('jwt.refreshExpiresIn') as any,
+    });
+
     return {
+      message: 'Authentication successful',
       accessToken,
-      refreshToken: 'refresh_tokens_disabled',
-      expiresIn: 3600,
-    } as any;
+      refreshToken,
+    };
   }
 }
