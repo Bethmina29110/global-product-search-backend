@@ -13,22 +13,15 @@ export class RagService {
   async search(query: string): Promise<SearchRecommendationResponseDto> {
     const searchResults = await this.searchService.search(query);
     
-    const rawProducts = searchResults.results || [];
+    const structuredProducts = searchResults.results || [];
     
-    // Extract structured JSON from Gemini
-    const extractedData = await this.geminiService.extractProducts(query, rawProducts);
-
-    // Map sources directly from Tavily results
-    const sources = rawProducts.map((p: any) => ({
-      title: p.title,
-      url: p.source || p.url,
-    }));
+    // AI evaluates the pre-structured SerpApi products
+    const extractedData = await this.geminiService.extractProducts(query, structuredProducts);
 
     return {
       query,
       topRecommendation: extractedData.topRecommendation,
       products: extractedData.products || [],
-      sources,
     };
   }
 }

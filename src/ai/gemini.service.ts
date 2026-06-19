@@ -13,52 +13,56 @@ export class GeminiService {
     }
   }
 
-  async extractProducts(query: string, searchResults: any[]): Promise<any> {
+  async extractProducts(query: string, structuredProducts: any[]): Promise<any> {
     if (!this.genAI) {
       this.logger.error('GEMINI_API_KEY is missing. Cannot call Gemini API.');
       throw new InternalServerErrorException('AI Service is not configured properly.');
     }
 
     try {
-      // Using gemini-2.5-flash as previously configured
       const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      const context = searchResults
-        .map((r, i) => `[Result ${i + 1}] Title: ${r.title}\nContent: ${r.content}`)
-        .join('\n\n');
+      // Pass the JSON-stringified structured products from SerpApi directly to the prompt
+      const context = JSON.stringify(structuredProducts, null, 2);
 
       const prompt = `
 User Query: "${query}"
 
-Based on the search results below, identify the best products.
+You are an expert shopping assistant. I am providing you with a list of actual products retrieved from Google Shopping.
+Your task is to evaluate these products based on the user's query, rank them, and return a strict JSON response.
 
-Return ONLY valid JSON.
+Return ONLY valid JSON. Do not use markdown backticks.
 
 Schema:
 {
   "topRecommendation": {
     "title": "string",
-    "reason": "string",
-    "score": 1
+    "reason": "string (Why is this the best choice?)",
+    "score": 10
   },
   "products": [
     {
-      "title": "string",
-      "summary": "string",
-      "score": 1
+      "title": "string (Must match input)",
+      "imageUrl": "string (Must match input)",
+      "price": "string or number (Must match input)",
+      "rating": 4.5,
+      "store": "string (Must match input)",
+      "productUrl": "string (Must match input)",
+      "confidence": 95,
+      "summary": "string (A personalized sentence on why this fits the user's need)",
+      "score": 9
     }
   ]
 }
 
 Rules:
-* Return valid JSON only.
-* Do not use markdown.
-* Do not use code fences.
-* Do not add explanations outside JSON.
-* Products should be ranked by relevance.
-* Score should be from 1-10.
+* Products array must contain the items from the provided list, enriched with your 'confidence', 'summary', and 'score'.
+* 'confidence' is an integer from 1 to 100 representing how well the product matches the user query.
+* 'score' is an integer from 1 to 10 representing overall product quality/relevance.
+* Retain the exact 'imageUrl', 'price', 'store', and 'productUrl' provided in the input context.
+* Sort the 'products' array by 'score' descending.
 
-Search Results:
+Structured Products Context:
 ${context}
 `;
 
@@ -67,7 +71,6 @@ ${context}
       
       let parsedJson;
       try {
-        // Strip markdown backticks if Gemini accidentally adds them
         let cleanText = responseText.trim();
         if (cleanText.startsWith('\`\`\`json')) {
           cleanText = cleanText.substring(7);

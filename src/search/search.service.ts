@@ -6,27 +6,36 @@ export class SearchService {
   private readonly logger = new Logger(SearchService.name);
 
   async search(query: string) {
-    const apiKey = process.env.TAVILY_API_KEY;
+    const apiKey = process.env.SERPAPI_API_KEY;
     
-    if (!apiKey) {
-      this.logger.error('TAVILY_API_KEY not found in environment variables.');
+    if (!apiKey || apiKey === 'your_serpapi_key_here') {
+      this.logger.error('SERPAPI_API_KEY not found or invalid in environment variables.');
       throw new InternalServerErrorException('Search service is not configured properly.');
     }
 
     try {
-      const response = await axios.post('https://api.tavily.com/search', {
-        api_key: apiKey,
-        query: query,
-        search_depth: 'basic',
-        include_answer: false,
+      // Use SerpApi Google Shopping engine
+      const response = await axios.get('https://serpapi.com/search.json', {
+        params: {
+          engine: 'google_shopping',
+          q: query,
+          api_key: apiKey,
+          num: 15, // Limit to 15 results to save context window
+        }
       });
 
-      // Normalize Search Results
-      const normalizedResults = response.data.results.map((result: any, index: number) => ({
+      if (!response.data.shopping_results) {
+        return { query, results: [] };
+      }
+
+      // Map SerpApi results to our structured format
+      const normalizedResults = response.data.shopping_results.map((result: any) => ({
         title: result.title,
-        price: 999 - (index * 50), // Mock price since Tavily provides raw web results
-        source: result.url,
-        content: result.content,
+        price: result.price || result.extracted_price, // fallback if price string is missing
+        rating: result.rating || null,
+        imageUrl: result.thumbnail,
+        store: result.source,
+        productUrl: result.link,
       }));
 
       return {
@@ -34,7 +43,7 @@ export class SearchService {
         results: normalizedResults,
       };
     } catch (error: any) {
-      this.logger.error(`Tavily search failed: ${error.message}`);
+      this.logger.error(`SerpApi search failed: ${error.message}`);
       throw new InternalServerErrorException('Failed to retrieve search results.');
     }
   }
