@@ -5,7 +5,7 @@ import axios from 'axios';
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
 
-  async search(query: string) {
+  async search(query: string, page: number = 1, limit: number = 10) {
     const apiKey = process.env.SERPAPI_API_KEY;
     
     if (!apiKey || apiKey === 'your_serpapi_key_here') {
@@ -14,13 +14,16 @@ export class SearchService {
     }
 
     try {
+      const start = (page - 1) * limit;
+
       // Use SerpApi Google Shopping engine
       const response = await axios.get('https://serpapi.com/search.json', {
         params: {
           engine: 'google_shopping',
           q: query,
           api_key: apiKey,
-          num: 15, // Limit to 15 results to save context window
+          num: limit,
+          start: start,
         }
       });
 

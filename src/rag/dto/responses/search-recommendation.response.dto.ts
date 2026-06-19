@@ -40,9 +40,21 @@ export class ProductRecommendationDto {
   score!: number;
 }
 
+export class PaginationMetaDto {
+  @Expose()
+  page!: number;
+
+  @Expose()
+  limit!: number;
+}
+
 export class SearchRecommendationResponseDto {
   @Expose()
   query!: string;
+
+  @Expose()
+  @Type(() => PaginationMetaDto)
+  meta!: PaginationMetaDto;
 
   @Expose()
   @Type(() => TopRecommendationDto)

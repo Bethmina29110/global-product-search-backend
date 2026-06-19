@@ -8,7 +8,7 @@ export class RagController {
   ) {}
 
   @Post('search')
-  search(@Body() body: { query: string }) {
-    return this.ragService.search(body.query);
+  search(@Body() body: { query: string; page?: number; limit?: number }) {
+    return this.ragService.search(body.query, body.page || 1, body.limit || 10);
   }
 }

@@ -10,8 +10,8 @@ export class RagService {
     private readonly geminiService: GeminiService,
   ) {}
 
-  async search(query: string): Promise<SearchRecommendationResponseDto> {
-    const searchResults = await this.searchService.search(query);
+  async search(query: string, page: number = 1, limit: number = 10): Promise<SearchRecommendationResponseDto> {
+    const searchResults = await this.searchService.search(query, page, limit);
     
     const structuredProducts = searchResults.results || [];
     
@@ -20,6 +20,10 @@ export class RagService {
 
     return {
       query,
+      meta: {
+        page,
+        limit,
+      },
       topRecommendation: extractedData.topRecommendation,
       products: extractedData.products || [],
     };
