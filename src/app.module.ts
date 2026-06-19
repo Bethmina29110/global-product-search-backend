@@ -27,6 +27,9 @@ import { MailModule } from './modules/mail/mail.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 import { getThrottlerModuleOptions } from './config/throttle-module.config';
+import { SearchModule } from './search/search.module';
+import { RagModule } from './rag/rag.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -74,6 +77,9 @@ import { getThrottlerModuleOptions } from './config/throttle-module.config';
     UsersModule,
     MailModule,
     NotificationsModule,
+    SearchModule,
+    RagModule,
+    AiModule,
   ],
 
   providers: [
