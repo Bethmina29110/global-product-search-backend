@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { RegisterRequestDto } from './dto/requests/register.request.dto';
 import { LoginRequestDto } from './dto/requests/login.request.dto';
+import { RefreshTokenRequestDto } from './dto/requests/refresh-token.request.dto';
 import { AuthTokensResponseDto } from './dto/responses/auth-tokens.response.dto';
 
 @Injectable()
@@ -56,6 +57,32 @@ export class AuthService {
     }
 
     return this.generateTokens(user.id.toString(), user.email, user.name);
+  }
+
+  async refreshToken(dto: RefreshTokenRequestDto): Promise<AuthTokensResponseDto> {
+    try {
+      const payload = this.jwtService.verify(dto.refreshToken, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+      });
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: parseInt(payload.sub, 10) },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return this.generateTokens(user.id.toString(), user.email, user.name);
+    } catch (e) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
+  async logout(userId: string): Promise<{ message: string }> {
+    // For stateless JWTs, the client handles clearing the token.
+    // If we had a token blacklist, we would insert the token here.
+    return { message: 'Logged out successfully' };
   }
 
   private generateTokens(userId: string, email: string, name: string): AuthTokensResponseDto {
