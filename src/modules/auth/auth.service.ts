@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@infrastructure/database/prisma.service';
 import { ConfigService } from '@nestjs/config';
@@ -19,44 +19,60 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterRequestDto): Promise<AuthTokensResponseDto> {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+      if (existingUser) {
+        throw new ConflictException('Email already exists');
+      }
+
+      const saltRounds = this.configService.get<number>('security.bcryptRounds', 12);
+      const passwordHash = await bcrypt.hash(dto.password, saltRounds);
+
+      const user = await this.prisma.user.create({
+        data: {
+          name: dto.fullName || dto.email.split('@')[0],
+          email: dto.email,
+          password: passwordHash,
+        },
+      });
+
+      return this.generateTokens(user.id.toString(), user.email, user.name);
+    } catch (error: any) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      this.logger.error(`Registration failed for email ${dto.email}`, error.stack);
+      throw new InternalServerErrorException('An unexpected error occurred during registration');
     }
-
-    const saltRounds = this.configService.get<number>('security.bcryptRounds', 12);
-    const passwordHash = await bcrypt.hash(dto.password, saltRounds);
-
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.fullName || dto.email.split('@')[0],
-        email: dto.email,
-        password: passwordHash,
-      },
-    });
-
-    return this.generateTokens(user.id.toString(), user.email, user.name);
   }
 
   async login(dto: LoginRequestDto): Promise<AuthTokensResponseDto> {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      return this.generateTokens(user.id.toString(), user.email, user.name);
+    } catch (error: any) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.logger.error(`Login failed for email ${dto.email}`, error.stack);
+      throw new InternalServerErrorException('An unexpected error occurred during login');
     }
-
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    return this.generateTokens(user.id.toString(), user.email, user.name);
   }
 
   async refreshToken(dto: RefreshTokenRequestDto): Promise<AuthTokensResponseDto> {
@@ -74,8 +90,17 @@ export class AuthService {
       }
 
       return this.generateTokens(user.id.toString(), user.email, user.name);
-    } catch (e) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+    } catch (error: any) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      // Differentiate between a JWT format/expiration error and a database crash
+      if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+      
+      this.logger.error(`Refresh token failed`, error.stack);
+      throw new InternalServerErrorException('An unexpected error occurred while refreshing the token');
     }
   }
 
