@@ -82,14 +82,26 @@ ${context}
         
         parsedJson = JSON.parse(cleanText.trim());
       } catch (parseError: any) {
-        this.logger.error(`Failed to parse Gemini JSON output. Raw response: ${responseText}`);
+        this.logger.error('\n=======================================');
+        this.logger.error('🔴 GEMINI JSON PARSE FAILED');
+        this.logger.error('Raw response from Gemini:');
+        this.logger.error(responseText);
+        this.logger.error('=======================================\n');
         throw new InternalServerErrorException('AI generated malformed product data.');
       }
 
       return parsedJson;
     } catch (error: any) {
-      this.logger.error(`Failed to generate content from Gemini: ${error.message}`);
-      throw new InternalServerErrorException(error.message === 'AI generated malformed product data.' ? error.message : 'Failed to generate AI response.');
+      if (error.message === 'AI generated malformed product data.') {
+        throw error; // Re-throw the parse error
+      }
+      
+      this.logger.error('\n=======================================');
+      this.logger.error('🔴 GEMINI API NETWORK/QUOTA FAILED');
+      this.logger.error(`Error Message: ${error.message}`);
+      this.logger.error(`Full Stack Trace: ${error.stack || error}`);
+      this.logger.error('=======================================\n');
+      throw new InternalServerErrorException('Failed to generate AI response.');
     }
   }
 }

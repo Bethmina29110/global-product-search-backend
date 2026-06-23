@@ -28,17 +28,23 @@ export class RagService {
     }
 
     let extractedData: any = null;
-    let finalProducts: any[] = [];
+    let aiProducts: any[] = [];
+    const productsForAi = structuredProducts.slice(0, 15);
+    const remainingProducts = structuredProducts.slice(15);
 
     try {
-      // AI evaluates the pre-structured SerpApi products
-      extractedData = await this.geminiService.extractProducts(query, structuredProducts);
-      finalProducts = extractedData.products || [];
+      // AI evaluates only the first 15 products to prevent token overflow
+      extractedData = await this.geminiService.extractProducts(query, productsForAi);
+      aiProducts = extractedData.products || [];
     } catch (error: any) {
-      console.warn('Gemini AI failed, falling back to raw search results:', error.message);
+      console.error('\n=======================================');
+      console.error('🔴 GEMINI AI FAILED TO PROCESS PRODUCTS');
+      console.error('Error Message:', error.message);
+      console.error('Full Stack Trace:', error.stack || error);
+      console.error('=======================================\n');
       
       // Fallback: Mock the AI fields so the app doesn't crash
-      finalProducts = structuredProducts.map((p: any, index: number) => ({
+      aiProducts = productsForAi.map((p: any, index: number) => ({
         title: p.title,
         category: 'Uncategorized (AI Fallback)',
         specs: {},
@@ -49,13 +55,25 @@ export class RagService {
 
       extractedData = {
         topRecommendation: {
-          title: finalProducts[0]?.title || 'No products found',
+          title: aiProducts[0]?.title || 'No products found',
           reason: 'Top organic result (AI Fallback).',
-          score: finalProducts[0]?.score || 0
+          score: aiProducts[0]?.score || 0
         },
-        products: finalProducts
+        products: aiProducts
       };
     }
+
+    // Map remaining products with default AI fields
+    const defaultRemainingProducts = remainingProducts.map((p: any) => ({
+      title: p.title,
+      category: 'General',
+      specs: {},
+      confidence: 50,
+      summary: 'Standard search result. (Not evaluated by AI to save processing time).',
+      score: 5
+    }));
+
+    let finalProducts = [...aiProducts, ...defaultRemainingProducts];
 
     // Helper function to dynamically build a search link using the store name and product title
     const generateStoreLink = (store: string, title: string) => {
@@ -82,15 +100,6 @@ export class RagService {
     // Merge guaranteed data directly from SerpApi search results
     finalProducts = finalProducts.map((aiProduct: any) => {
       const originalProduct = structuredProducts.find((p: any) => p.title === aiProduct.title);
-      
-      if (!originalProduct) {
-        console.log('\n--- Title Mismatch Detected ---');
-        console.log('AI Title:', aiProduct.title);
-        console.log('Available Titles:', structuredProducts.map((p: any) => p.title));
-      } else {
-        console.log('\n--- Matched Product ---');
-        console.log(JSON.stringify(originalProduct, null, 2));
-      }
 
       const store = originalProduct?.store || 'Amazon';
       const title = originalProduct?.title || aiProduct.title;
