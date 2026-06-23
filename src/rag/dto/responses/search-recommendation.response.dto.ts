@@ -52,6 +52,9 @@ export class PaginationMetaDto {
 
   @Expose()
   limit!: number;
+
+  @Expose()
+  total!: number;
 }
 
 export class SearchRecommendationResponseDto {

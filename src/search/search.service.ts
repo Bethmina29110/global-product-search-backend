@@ -5,7 +5,7 @@ import axios from 'axios';
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
 
-  async search(query: string, page: number = 1, limit: number = 10) {
+  async search(query: string) {
     const apiKey = process.env.SERPAPI_API_KEY;
     
     if (!apiKey || apiKey === 'your_serpapi_key_here') {
@@ -14,16 +14,12 @@ export class SearchService {
     }
 
     try {
-      const start = (page - 1) * limit;
-
       // Use SerpApi Google Shopping engine
       const response = await axios.get('https://serpapi.com/search.json', {
         params: {
           engine: 'google_shopping',
           q: query,
           api_key: apiKey,
-          num: limit,
-          start: start,
         }
       });
 
@@ -41,9 +37,20 @@ export class SearchService {
         productUrl: result.product_link || result.link || '',
       }));
 
+      // Extract total results if available, otherwise just use a fallback or the length of current results
+      let total = 0;
+      if (response.data.search_information && response.data.search_information.total_results) {
+        total = response.data.search_information.total_results;
+      } else if (response.data.serpapi_pagination && response.data.serpapi_pagination.total) {
+        total = response.data.serpapi_pagination.total;
+      } else {
+        total = normalizedResults.length; // fallback
+      }
+
       return {
         query,
         results: normalizedResults,
+        total,
       };
     } catch (error: any) {
       this.logger.error(`SerpApi search failed: ${error.message}`);

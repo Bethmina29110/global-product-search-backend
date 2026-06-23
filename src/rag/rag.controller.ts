@@ -8,15 +8,7 @@ export class RagController {
   ) {}
 
   @Post('search')
-  search(
-    @Body() body: { query: string; page?: number; limit?: number },
-    @Query('page') queryPage?: string,
-    @Query('limit') queryLimit?: string
-  ) {
-    // Read from query params first, fallback to body, then default
-    const page = queryPage ? parseInt(queryPage, 10) : (body.page || 1);
-    const limit = queryLimit ? parseInt(queryLimit, 10) : (body.limit || 10);
-    
-    return this.ragService.search(body.query, page, limit);
+  search(@Body() body: { query: string }) {
+    return this.ragService.search(body.query);
   }
 }

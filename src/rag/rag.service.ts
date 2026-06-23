@@ -10,8 +10,8 @@ export class RagService {
     private readonly geminiService: GeminiService,
   ) { }
 
-  async search(query: string, page: number = 1, limit: number = 10): Promise<SearchRecommendationResponseDto> {
-    const searchResults = await this.searchService.search(query, page, limit);
+  async search(query: string): Promise<SearchRecommendationResponseDto> {
+    const searchResults = await this.searchService.search(query);
 
     let structuredProducts = searchResults.results || [];
 
@@ -106,15 +106,15 @@ export class RagService {
     });
 
 
-    // Sort by score descending and limit to top 10
+    // Sort by score descending
     finalProducts.sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
-    finalProducts = finalProducts.slice(0, 10);
 
     return {
       query,
       meta: {
-        page,
-        limit,
+        page: 1,
+        limit: finalProducts.length,
+        total: searchResults.total || 0,
       },
       topRecommendation: extractedData.topRecommendation || {
         title: finalProducts[0]?.title || 'No products found',
