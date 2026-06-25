@@ -27,38 +27,44 @@ export class GeminiService {
       const prompt = `
 User Query: "${query}"
 
-You are an expert shopping assistant. I am providing you with a list of actual products retrieved from Google Shopping.
-Your task is to evaluate these products based on the user's query, extract specifications, rank them, and return a strict JSON response.
+You are an expert shopping assistant. I am providing you with a list of actual products retrieved from Google Shopping, pre-ranked by semantic similarity to the user's query.
+Your task is to evaluate these products, extract specifications, and return a strict JSON response.
 
-Return ONLY valid JSON. Do not use markdown backticks.
+Return ONLY valid JSON. Do not use markdown backticks. Do not include any explanation outside the JSON.
 
 Schema:
 {
   "topRecommendation": {
-    "title": "string (Must exactly match the input title)",
-    "reason": "string (Why is this the best choice? Consider price, specs, and ratings)",
+    "title": "string (MUST exactly match one of the input product titles)",
+    "reason": "string (Why is this the best choice? Be specific about price, specs, and relevance to the query)",
     "score": 10
   },
   "products": [
     {
-      "title": "string (Must exactly match the input title)",
-      "category": "string (Dynamic category based on the product, e.g., 'Running Shoes', 'Smartphones', 'Gaming Laptops')",
-      "specs": {
-        "key": "string (Extract any highly relevant technical specifications or details dynamically as key-value pairs, e.g., {'RAM': '16GB', 'Material': 'Leather'})"
+      "title": "string (MUST exactly match the input title so it can be matched back to the original data)",
+      "category": "string (Dynamic category, e.g. 'Gaming Laptops', 'Running Shoes', 'OLED TVs', 'Smartwatches')",
+      "specifications": {
+        "DynamicKeyBasedOnCategory": "DynamicValue"
       },
       "confidence": 95,
-      "summary": "string (A personalized sentence on why this fits the user's need)",
+      "summary": "string (One sentence explaining why this product fits the user's need)",
+      "reasoning": "string (One sentence explaining why this was selected over similar products)",
       "score": 9
     }
   ]
 }
 
 Rules:
-* Products array must contain the items from the provided list, enriched with your 'confidence', 'summary', 'category', 'specs', and 'score'.
-* 'title' MUST EXACTLY match the title from the input context so it can be mapped back to the database.
-* 'confidence' is an integer from 1 to 100 representing how well the product matches the user query.
-* 'score' is an integer from 1 to 10. Prioritize lower price, higher ratings, better specifications, and exact match with user intent.
-* Extract 'specs' as a dynamic dictionary of the most important product specifications. Only include specs that are explicitly mentioned or clearly inferable. Do not invent specs.
+* 'title' MUST EXACTLY match the input title so it can be mapped back to the original search result.
+* 'confidence' is an integer from 1 to 100 representing how well this product matches the user query.
+* 'score' is an integer from 1 to 10. Prioritize: exact match with query intent, lower price, higher rating, better specifications.
+* 'specifications' MUST be a dynamic key-value object. NEVER use fixed keys like 'cpu', 'gpu', 'ram', 'storage', 'display'. Instead, use human-readable labels appropriate for the product category:
+  - Laptops: { "Processor": "...", "Graphics": "...", "Memory": "...", "Storage": "..." }
+  - Phones: { "Chip": "...", "Camera": "...", "Battery": "...", "Display": "..." }
+  - TVs: { "Resolution": "...", "Panel": "...", "Refresh Rate": "...", "Screen Size": "..." }
+  - Shoes: { "Material": "...", "Sole": "...", "Closure": "..." }
+  - Any other category: extract the 2-4 most relevant specifications from the product title.
+* Only include specifications that are explicitly mentioned or clearly inferable from the title. Do not invent data.
 * Sort the 'products' array by 'score' descending.
 
 Structured Products Context:

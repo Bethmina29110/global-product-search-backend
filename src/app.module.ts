@@ -30,6 +30,7 @@ import { getThrottlerModuleOptions } from './config/throttle-module.config';
 import { SearchModule } from './search/search.module';
 import { RagModule } from './rag/rag.module';
 import { AiModule } from './ai/ai.module';
+import { RankingModule } from './ranking/ranking.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { AiModule } from './ai/ai.module';
     SearchModule,
     RagModule,
     AiModule,
+    RankingModule,
   ],
 
   providers: [
