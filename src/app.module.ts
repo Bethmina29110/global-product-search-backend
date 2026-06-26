@@ -32,6 +32,7 @@ import { RagModule } from './rag/rag.module';
 import { AiModule } from './ai/ai.module';
 import { RankingModule } from './ranking/ranking.module';
 import { FavouritesModule } from './modules/favourites/favourites.module';
+import { SavedSearchModule } from './modules/saved-search/saved-search.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { FavouritesModule } from './modules/favourites/favourites.module';
     AiModule,
     RankingModule,
     FavouritesModule,
+    SavedSearchModule,
   ],
 
   providers: [

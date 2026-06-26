@@ -19,6 +19,7 @@ model User {
   email      String       @unique
   password   String
   favourites Favourite[]
+  savedSearches SavedSearch[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,4 +43,14 @@ model Favourite {
   createdAt DateTime @default(now())
 
   @@unique([userId, title])
+}
+
+model SavedSearch {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query        String
+  type         String
+  matchesCount Int
+  createdAt    DateTime @default(now())
 }
