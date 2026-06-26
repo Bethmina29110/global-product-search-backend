@@ -34,6 +34,7 @@ import { RankingModule } from './ranking/ranking.module';
 import { FavouritesModule } from './modules/favourites/favourites.module';
 import { SavedSearchModule } from './modules/saved-search/saved-search.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     FavouritesModule,
     SavedSearchModule,
     DashboardModule,
+    AnalyticsModule,
   ],
 
   providers: [
