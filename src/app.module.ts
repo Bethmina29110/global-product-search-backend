@@ -31,6 +31,7 @@ import { SearchModule } from './search/search.module';
 import { RagModule } from './rag/rag.module';
 import { AiModule } from './ai/ai.module';
 import { RankingModule } from './ranking/ranking.module';
+import { FavouritesModule } from './modules/favourites/favourites.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { RankingModule } from './ranking/ranking.module';
     RagModule,
     AiModule,
     RankingModule,
+    FavouritesModule,
   ],
 
   providers: [
