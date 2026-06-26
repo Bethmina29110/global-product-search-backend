@@ -12,4 +12,16 @@ export class DashboardController {
   async getOverview() {
     return this.dashboardService.getOverview();
   }
+
+  @Get('recent-saved-queries')
+  @HttpCode(HttpStatus.OK)
+  async getRecentSavedQueries() {
+    return this.dashboardService.getRecentSavedQueries();
+  }
+
+  @Get('semantic-search-activity')
+  @HttpCode(HttpStatus.OK)
+  async getWeeklySearchActivity() {
+    return this.dashboardService.getWeeklySearchActivity();
+  }
 }
