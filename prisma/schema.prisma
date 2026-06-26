@@ -20,6 +20,7 @@ model User {
   password   String
   favourites Favourite[]
   savedSearches SavedSearch[]
+  searchLogs SearchLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,4 +54,13 @@ model SavedSearch {
   type         String
   matchesCount Int
   createdAt    DateTime @default(now())
+}
+
+model SearchLog {
+  id        Int      @id @default(autoincrement())
+  query     String
+  latencyMs Int
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
 }

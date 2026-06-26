@@ -1,11 +1,15 @@
 import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
+import { PrismaService } from '../infrastructure/database/prisma.service';
 
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
 
-  async search(query: string) {
+  constructor(private prisma: PrismaService) {}
+
+  async search(query: string, userId?: number) {
+    const startTime = performance.now();
     const apiKey = process.env.SERPAPI_API_KEY;
     
     if (!apiKey || apiKey === 'your_serpapi_key_here') {
@@ -93,6 +97,17 @@ export class SearchService {
       if (!total) {
         total = normalizedResults.length;
       }
+
+      const latencyMs = Math.round(performance.now() - startTime);
+      
+      // Log search asynchronously
+      this.prisma.searchLog.create({
+        data: {
+          query,
+          latencyMs,
+          userId: userId || null,
+        }
+      }).catch(err => this.logger.error(`Failed to log search: ${err.message}`));
 
       return {
         query,
