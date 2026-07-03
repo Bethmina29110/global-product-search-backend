@@ -9,19 +9,19 @@ export class DashboardController {
 
   @Get('overview')
   @HttpCode(HttpStatus.OK)
-  async getOverview() {
-    return this.dashboardService.getOverview();
+  async getOverview(@CurrentUser() user: any) {
+    return this.dashboardService.getOverview(Number(user.sub));
   }
 
   @Get('recent-saved-queries')
   @HttpCode(HttpStatus.OK)
-  async getRecentSavedQueries() {
-    return this.dashboardService.getRecentSavedQueries();
+  async getRecentSavedQueries(@CurrentUser() user: any) {
+    return this.dashboardService.getRecentSavedQueries(Number(user.sub));
   }
 
   @Get('semantic-search-activity')
   @HttpCode(HttpStatus.OK)
-  async getWeeklySearchActivity() {
-    return this.dashboardService.getWeeklySearchActivity();
+  async getWeeklySearchActivity(@CurrentUser() user: any) {
+    return this.dashboardService.getWeeklySearchActivity(Number(user.sub));
   }
 }

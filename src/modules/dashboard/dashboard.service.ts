@@ -7,8 +7,8 @@ export class DashboardService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getOverview() {
-    this.logger.log('Fetching dashboard overview metrics');
+  async getOverview(userId: number) {
+    this.logger.log(`Fetching dashboard overview metrics for user ${userId}`);
 
     try {
       // Run queries concurrently
@@ -18,10 +18,11 @@ export class DashboardService {
         favoriteProducts,
         latencyAgg
       ] = await Promise.all([
-        this.prisma.searchLog.count(),
-        this.prisma.savedSearch.count(),
-        this.prisma.favourite.count(),
+        this.prisma.searchLog.count({ where: { userId } }),
+        this.prisma.savedSearch.count({ where: { userId } }),
+        this.prisma.favourite.count({ where: { userId } }),
         this.prisma.searchLog.aggregate({
+          where: { userId },
           _avg: {
             latencyMs: true,
           },
@@ -40,10 +41,11 @@ export class DashboardService {
     }
   }
 
-  async getRecentSavedQueries() {
-    this.logger.log('Fetching 4 most recent saved queries for dashboard');
+  async getRecentSavedQueries(userId: number) {
+    this.logger.log(`Fetching 4 most recent saved queries for user ${userId}`);
     try {
       return await this.prisma.savedSearch.findMany({
+        where: { userId },
         take: 4,
         orderBy: {
           createdAt: 'desc',
@@ -63,8 +65,8 @@ export class DashboardService {
     }
   }
 
-  async getWeeklySearchActivity() {
-    this.logger.log('Fetching weekly search activity');
+  async getWeeklySearchActivity(userId: number) {
+    this.logger.log(`Fetching weekly search activity for user ${userId}`);
     try {
       // Get the start of the current week (Monday)
       const now = new Date();
@@ -75,6 +77,7 @@ export class DashboardService {
 
       const logs = await this.prisma.searchLog.findMany({
         where: {
+          userId,
           createdAt: {
             gte: startOfWeek,
           },
