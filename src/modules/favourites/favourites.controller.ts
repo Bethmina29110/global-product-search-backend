@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { FavouritesService } from './favourites.service';
 import { SaveFavouriteDto } from './dto/save-favourite.dto';
@@ -24,8 +25,12 @@ export class FavouritesController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: any) {
-    return this.favouritesService.findAll(Number(user.sub));
+  findAll(
+    @CurrentUser() user: any,
+    @Query('page') page?: string,
+  ) {
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    return this.favouritesService.findAll(Number(user.sub), pageNumber);
   }
 
   @Delete(':id')

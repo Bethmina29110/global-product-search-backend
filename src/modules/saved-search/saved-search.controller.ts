@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { SavedSearchService } from './saved-search.service';
 import { SaveSearchDto } from './dto/save-search.dto';
@@ -24,8 +25,12 @@ export class SavedSearchController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: any) {
-    return this.savedSearchService.findAll(Number(user.sub));
+  findAll(
+    @CurrentUser() user: any,
+    @Query('page') page?: string,
+  ) {
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    return this.savedSearchService.findAll(Number(user.sub), pageNumber);
   }
 
   @Delete(':id')

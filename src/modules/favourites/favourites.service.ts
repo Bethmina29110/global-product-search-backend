@@ -41,12 +41,30 @@ export class FavouritesService {
     }
   }
 
-  async findAll(userId: number) {
-    this.logger.log(`Fetching all favourites for user ${userId}`);
-    return this.prisma.favourite.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(userId: number, page: number = 1) {
+    this.logger.log(`Fetching all favourites for user ${userId}, page ${page}`);
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.favourite.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      this.prisma.favourite.count({ where: { userId } })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
   }
 
   async delete(userId: number, id: number) {

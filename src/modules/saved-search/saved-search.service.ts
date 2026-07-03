@@ -32,16 +32,30 @@ export class SavedSearchService {
     }
   }
 
-  async findAll(userId: number) {
-    this.logger.log(`Fetching all saved searches for user ${userId}`);
-    return this.prisma.savedSearch.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(userId: number, page: number = 1) {
+    this.logger.log(`Fetching all saved searches for user ${userId}, page ${page}`);
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.savedSearch.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      this.prisma.savedSearch.count({ where: { userId } })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
   }
 
   async delete(userId: number, id: number) {
