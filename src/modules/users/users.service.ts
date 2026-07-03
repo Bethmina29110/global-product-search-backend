@@ -21,7 +21,11 @@ export class UsersService {
     return user;
   }
 
-
+  async findAll() {
+    return this.prisma.user.findMany({
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+  }
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
     if (Object.keys(dto).length === 0) {

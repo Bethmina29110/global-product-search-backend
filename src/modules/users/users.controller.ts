@@ -48,4 +48,13 @@ export class UsersController {
     return this.usersService.deleteAccount(Number(user.sub));
   }
 
+  @Get()
+  async findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findById(id);
+  }
 }
