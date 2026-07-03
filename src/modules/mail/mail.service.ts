@@ -15,7 +15,7 @@ export class MailService {
         template: 'password-reset',
         context: {
           otp: otp,
-          resetUrl: 'http://localhost:5173/forgot-password',
+          resetUrl: `http://localhost:5173/reset-password?email=${encodeURIComponent(email)}`,
         },
       });
       this.logger.log(`OTP Email successfully sent to ${email}`);
@@ -71,3 +71,5 @@ export class MailService {
     }
   }
 }
+
+        
