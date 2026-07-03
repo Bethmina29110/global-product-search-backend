@@ -14,9 +14,9 @@ export class RagService {
     private readonly rankingService: RankingService,
   ) { }
 
-  async search(query: string): Promise<SearchRecommendationResponseDto> {
+  async search(query: string, userId?: number): Promise<SearchRecommendationResponseDto> {
     // Step 1: Retrieve all products from Search Module (multi-page, deduped)
-    const searchResults = await this.searchService.search(query);
+    const searchResults = await this.searchService.search(query, userId);
     const allProducts = searchResults.results || [];
 
     this.logger.log(`Search Module returned ${allProducts.length} products for query: "${query}"`);
