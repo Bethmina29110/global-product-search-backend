@@ -11,10 +11,11 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: 'Password Reset OTP - Classifieds',
+        subject: 'Password Reset OTP - Semantix',
         template: 'password-reset',
         context: {
           otp: otp,
+          resetUrl: 'http://localhost:5173/forgot-password',
         },
       });
       this.logger.log(`OTP Email successfully sent to ${email}`);
@@ -35,7 +36,7 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: 'Email Verification Code - Classifieds',
+        subject: 'Email Verification Code - Semantix',
         template: 'email-verify',
         context: { otp },
       });
@@ -56,7 +57,7 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: 'Welcome to Classifieds',
+        subject: 'Welcome to Semantix',
         template: 'welcome',
         context: {
           fullName: fullName || 'there',
