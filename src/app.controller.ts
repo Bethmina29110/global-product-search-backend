@@ -9,4 +9,12 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('test-meta')
+  testMeta() {
+    return {
+      data: [{ id: 1 }],
+      meta: { total: 10, page: 1, limit: 20 }
+    };
+  }
 }

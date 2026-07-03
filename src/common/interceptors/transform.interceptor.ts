@@ -31,6 +31,8 @@ export interface Response<T> {
     timestamp: string;
     /** Request path */
     path: string;
+    /** Dynamic metadata like pagination */
+    [key: string]: any;
   };
 }
 
@@ -118,6 +120,13 @@ export class TransformInterceptor<T>
           }
         }
 
+        // Extract data and meta if the service returns them explicitly
+        let extractedMeta = {};
+        if (finalData && typeof finalData === 'object' && !Array.isArray(finalData) && 'data' in finalData && 'meta' in finalData) {
+          extractedMeta = finalData.meta;
+          finalData = finalData.data;
+        }
+
         return {
           statusCode,
           success: statusCode >= 200 && statusCode < 300,
@@ -126,6 +135,7 @@ export class TransformInterceptor<T>
           meta: {
             timestamp: new Date().toISOString(),
             path: request.url,
+            ...extractedMeta,
           },
         };
       }),
