@@ -6,7 +6,10 @@ import * as bcrypt from 'bcrypt';
 import { RegisterRequestDto } from './dto/requests/register.request.dto';
 import { LoginRequestDto } from './dto/requests/login.request.dto';
 import { RefreshTokenRequestDto } from './dto/requests/refresh-token.request.dto';
+import { ForgotPasswordRequestDto } from './dto/requests/forgot-password.request.dto';
+import { ResetPasswordRequestDto } from './dto/requests/reset-password.request.dto';
 import { AuthTokensResponseDto } from './dto/responses/auth-tokens.response.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +19,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(dto: RegisterRequestDto): Promise<AuthTokensResponseDto> {
@@ -108,6 +112,82 @@ export class AuthService {
     // For stateless JWTs, the client handles clearing the token.
     // If we had a token blacklist, we would insert the token here.
     return { message: 'Logged out successfully' };
+  }
+
+  async forgotPassword(dto: ForgotPasswordRequestDto): Promise<{ message: string }> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
+
+      if (!user) {
+        // Return success even if user not found to prevent email enumeration
+        return { message: 'If your email is registered, you will receive an OTP shortly.' };
+      }
+
+      // Generate a 4-digit OTP
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          resetPasswordOtp: otp,
+          resetPasswordOtpExpiry: expiry,
+        },
+      });
+
+      await this.mailService.sendPasswordResetOtp(user.email, otp);
+
+      return { message: 'If your email is registered, you will receive an OTP shortly.' };
+    } catch (error: any) {
+      this.logger.error(`Forgot password failed for email ${dto.email}`, error.stack);
+      throw new InternalServerErrorException('An unexpected error occurred during password reset request');
+    }
+  }
+
+  async resetPassword(dto: ResetPasswordRequestDto): Promise<{ message: string }> {
+    try {
+      if (dto.newPassword !== dto.confirmPassword) {
+        throw new UnauthorizedException('Passwords do not match');
+      }
+
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid or expired OTP');
+      }
+
+      if (user.resetPasswordOtp !== dto.otp) {
+        throw new UnauthorizedException('Invalid or expired OTP');
+      }
+
+      if (!user.resetPasswordOtpExpiry || user.resetPasswordOtpExpiry < new Date()) {
+        throw new UnauthorizedException('Invalid or expired OTP');
+      }
+
+      const saltRounds = this.configService.get<number>('security.bcryptRounds', 12);
+      const passwordHash = await bcrypt.hash(dto.newPassword, saltRounds);
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: passwordHash,
+          resetPasswordOtp: null,
+          resetPasswordOtpExpiry: null,
+        },
+      });
+
+      return { message: 'Password has been successfully reset' };
+    } catch (error: any) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.logger.error(`Reset password failed for email ${dto.email}`, error.stack);
+      throw new InternalServerErrorException('An unexpected error occurred during password reset');
+    }
   }
 
   private generateTokens(userId: string, email: string, name: string): AuthTokensResponseDto {

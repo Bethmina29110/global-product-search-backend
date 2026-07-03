@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from '@infrastructure/database/prisma.module';
+import { MailModule } from '../mail/mail.module';
 import jwtConfig from '@config/jwt.config';
 
 @Module({
@@ -27,6 +28,7 @@ import jwtConfig from '@config/jwt.config';
     }),
     
     PrismaModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
