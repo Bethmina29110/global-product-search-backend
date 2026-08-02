@@ -9,32 +9,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug Secrets
-        run: |
-          echo "--- Checking if secrets are populated ---"
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "❌ EC2_HOST is EMPTY"; else echo "✅ EC2_HOST is POPULATED"; fi
-          if [ -z "${{ secrets.EC2_USERNAME }}" ]; then echo "❌ EC2_USERNAME is EMPTY"; else echo "✅ EC2_USERNAME is POPULATED"; fi
-          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then echo "❌ EC2_SSH_KEY is EMPTY"; else echo "✅ EC2_SSH_KEY is POPULATED"; fi
-          
-          echo "--- Verifying Host and Username values ---"
-          # We use sed to insert spaces so GitHub doesn't mask the output with ***
-          echo "Host being passed to action:"
-          echo "${{ secrets.EC2_HOST }}" | sed 's/./& /g'
-          
-          echo "Username being passed to action:"
-          echo "${{ secrets.EC2_USERNAME }}" | sed 's/./& /g'
-          
-          echo "--- Verifying SSH Key size ---"
-          echo "Character count of SSH Key (should be ~1600+ for a standard PEM):"
-          echo "${{ secrets.EC2_SSH_KEY }}" | wc -c
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          debug: true
           script: |
             echo "Starting deployment..."
             
