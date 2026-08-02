@@ -9,35 +9,40 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          debug: true
-          script: |
+      - name: Deploy via native SSH
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          # Set up SSH key
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          
+          # Fix Windows line endings in the key just in case
+          sed -i 's/\r$//' ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Add host to known_hosts to prevent interactive prompt
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+          
+          # Execute commands over SSH
+          ssh -i ~/.ssh/id_rsa $USERNAME@$HOST << 'EOF'
             echo "Starting deployment..."
-            
-            # Navigate to your project directory
-            echo "Navigating to project directory..."
             cd ~/bethimna/backend
             
-            # Pull latest changes from the deploy branch
             echo "Pulling latest code..."
             git pull origin deploy
             
-            # Install dependencies
             echo "Installing dependencies..."
             npm install
             
-            # Build the project
             echo "Building project..."
             npm run build
             
-            # Restart the application using PM2
             echo "Restarting application..."
             pm2 restart bethimna-backend || pm2 start dist/main.js --name "bethimna-backend"
             
             echo "Deployment finished successfully!"
+          EOF
 
