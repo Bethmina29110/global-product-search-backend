@@ -9,40 +9,54 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via native SSH
-        env:
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USERNAME: ${{ secrets.EC2_USERNAME }}
+      - name: Debug Secrets
         run: |
-          # Set up SSH key
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          echo "--- Checking if secrets are populated ---"
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "❌ EC2_HOST is EMPTY"; else echo "✅ EC2_HOST is POPULATED"; fi
+          if [ -z "${{ secrets.EC2_USERNAME }}" ]; then echo "❌ EC2_USERNAME is EMPTY"; else echo "✅ EC2_USERNAME is POPULATED"; fi
+          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then echo "❌ EC2_SSH_KEY is EMPTY"; else echo "✅ EC2_SSH_KEY is POPULATED"; fi
           
-          # Fix Windows line endings in the key just in case
-          sed -i 's/\r$//' ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "--- Verifying Host and Username values ---"
+          # We use sed to insert spaces so GitHub doesn't mask the output with ***
+          echo "Host being passed to action:"
+          echo "${{ secrets.EC2_HOST }}" | sed 's/./& /g'
           
-          # Add host to known_hosts to prevent interactive prompt
-          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+          echo "Username being passed to action:"
+          echo "${{ secrets.EC2_USERNAME }}" | sed 's/./& /g'
           
-          # Execute commands over SSH
-          ssh -i ~/.ssh/id_rsa $USERNAME@$HOST << 'EOF'
+          echo "--- Verifying SSH Key size ---"
+          echo "Character count of SSH Key (should be ~1600+ for a standard PEM):"
+          echo "${{ secrets.EC2_SSH_KEY }}" | wc -c
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
+          script: |
             echo "Starting deployment..."
+            
+            # Navigate to your project directory
+            echo "Navigating to project directory..."
             cd ~/bethimna/backend
             
+            # Pull latest changes from the deploy branch
             echo "Pulling latest code..."
             git pull origin deploy
             
+            # Install dependencies
             echo "Installing dependencies..."
             npm install
             
+            # Build the project
             echo "Building project..."
             npm run build
             
+            # Restart the application using PM2
             echo "Restarting application..."
             pm2 restart bethimna-backend || pm2 start dist/main.js --name "bethimna-backend"
             
             echo "Deployment finished successfully!"
-          EOF
 
