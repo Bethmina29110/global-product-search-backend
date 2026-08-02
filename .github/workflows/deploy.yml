@@ -1,0 +1,33 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - deploy # Change this to your main branch name if different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to your project directory
+            cd ~/bethimna/backend
+            
+            # Pull latest changes from the deploy branch
+            git pull origin deploy
+            
+            # Install dependencies
+            npm install
+            
+            # Build the project
+            npm run build
+            
+            # Restart the application using PM2
+            pm2 restart bethimna-backend || pm2 start dist/main.js --name "bethimna-backend"
+
