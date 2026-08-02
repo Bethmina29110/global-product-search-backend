@@ -15,19 +15,29 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
           script: |
+            echo "Starting deployment..."
+            
             # Navigate to your project directory
+            echo "Navigating to project directory..."
             cd ~/bethimna/backend
             
             # Pull latest changes from the deploy branch
+            echo "Pulling latest code..."
             git pull origin deploy
             
             # Install dependencies
+            echo "Installing dependencies..."
             npm install
             
             # Build the project
+            echo "Building project..."
             npm run build
             
             # Restart the application using PM2
+            echo "Restarting application..."
             pm2 restart bethimna-backend || pm2 start dist/main.js --name "bethimna-backend"
+            
+            echo "Deployment finished successfully!"
 
