@@ -21,48 +21,46 @@ export class SearchService {
       let allRawResults: any[] = [];
       const MAX_PAGES = 5; // Prevent infinite loops
       let pageCount = 1;
-      let nextUrl: string | null = null;
       let total = 0;
 
-      // 1. Initial Google Shopping search request
-      this.logger.log(`Fetching page ${pageCount} for query: "${query}"`);
-      let response = await axios.get('https://serpapi.com/search.json', {
-        params: {
-          engine: 'google_shopping',
-          q: query,
-          api_key: apiKey,
-        }
-      });
-
-      if (response.data.shopping_results) {
-        allRawResults.push(...response.data.shopping_results);
-      }
-
-      // Extract total results from first page
-      if (response.data.search_information && response.data.search_information.total_results) {
-        total = response.data.search_information.total_results;
-      } else if (response.data.serpapi_pagination && response.data.serpapi_pagination.total) {
-        total = response.data.serpapi_pagination.total;
-      }
-
-      nextUrl = response.data.serpapi_pagination?.next || null;
-
-      // 2. Loop through subsequent pages
-      while (nextUrl && pageCount < MAX_PAGES) {
-        pageCount++;
+      // SerpApi Google Shopping engine does not always return a `next` URL.
+      // We must manually paginate using the `start` parameter (0, 40, 80...).
+      for (pageCount = 1; pageCount <= MAX_PAGES; pageCount++) {
         this.logger.log(`Fetching page ${pageCount} for query: "${query}"`);
         
+        // CRITICAL FIX: DO NOT REMOVE THIS DELAY!
+        // SerpApi's Free/Developer tier blocks back-to-back requests (HTTP 429).
+        // This 1-second delay ensures we can actually fetch pages 2, 3, 4, and 5 to get 100+ products.
+        if (pageCount > 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         try {
-          // The next URL from SerpApi often contains the full required URL
-          response = await axios.get(nextUrl, {
-            params: { api_key: apiKey }
+          const startParam = (pageCount - 1) * 40;
+          let response = await axios.get('https://serpapi.com/search.json', {
+            params: {
+              engine: 'google_shopping',
+              q: query,
+              api_key: apiKey,
+              start: startParam,
+            }
           });
 
-          if (response.data.shopping_results) {
+          if (response.data.shopping_results && response.data.shopping_results.length > 0) {
             allRawResults.push(...response.data.shopping_results);
+          } else {
+            // No more results returned or we hit the end of pagination
+            break;
           }
 
-          nextUrl = response.data.serpapi_pagination?.next || null;
+          // Extract total results from first page
+          if (pageCount === 1) {
+            if (response.data.search_information && response.data.search_information.total_results) {
+              total = response.data.search_information.total_results;
+            } else if (response.data.serpapi_pagination && response.data.serpapi_pagination.total) {
+              total = response.data.serpapi_pagination.total;
+            }
+          }
         } catch (pageError: any) {
           // Graceful handling of failed page requests
           this.logger.warn(`Failed to fetch page ${pageCount}: ${pageError.message}. Continuing with accumulated results.`);
