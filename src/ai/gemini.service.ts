@@ -13,6 +13,40 @@ export class GeminiService {
     }
   }
 
+  async rewriteQuery(query: string): Promise<string> {
+    if (!this.genAI) {
+      this.logger.warn('GEMINI_API_KEY is missing. Returning original query.');
+      return query;
+    }
+
+    try {
+      // Use a faster model for simple text rewriting if preferred, but flash is fine and fast.
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const prompt = `
+You are an expert e-commerce search optimizer.
+The user has provided a conversational search query. Your job is to extract the core product keywords to be used in a Google Shopping search.
+Do not include conversational filler words like "I want", "recommend me", "show me", "where can I find", etc.
+Keep it concise and optimized for an exact-match keyword search engine.
+
+User Query: "${query}"
+
+Return ONLY the optimized keywords. Do not include any quotes, markdown, or other text.
+      `.trim();
+
+      const result = await model.generateContent(prompt);
+      const rewrittenQuery = await result.response.text();
+      
+      const cleanedQuery = rewrittenQuery.trim();
+      this.logger.log(`Original query: "${query}" -> Rewritten query: "${cleanedQuery}"`);
+      return cleanedQuery;
+
+    } catch (error: any) {
+      this.logger.error(`Failed to rewrite query: ${error.message}. Falling back to original query.`);
+      return query;
+    }
+  }
+
   async extractProducts(query: string, structuredProducts: any[]): Promise<any> {
     if (!this.genAI) {
       this.logger.error('GEMINI_API_KEY is missing. Cannot call Gemini API.');

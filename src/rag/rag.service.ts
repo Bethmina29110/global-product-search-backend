@@ -15,8 +15,11 @@ export class RagService {
   ) { }
 
   async search(query: string, userId?: number): Promise<SearchRecommendationResponseDto> {
-    // Step 1: Retrieve all products from Search Module (multi-page, deduped)
-    const searchResults = await this.searchService.search(query, userId);
+    // Step 0: Intercept and rewrite conversational queries to keywords
+    const searchKeywords = await this.geminiService.rewriteQuery(query);
+
+    // Step 1: Retrieve all products from Search Module (multi-page, deduped) using the keywords
+    const searchResults = await this.searchService.search(searchKeywords, userId);
     const allProducts = searchResults.results || [];
 
     this.logger.log(`Search Module returned ${allProducts.length} products for query: "${query}"`);
