@@ -21,7 +21,7 @@ export class GeminiService {
 
     try {
       // Use a faster model for simple text rewriting if preferred, but flash is fine and fast.
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
 
       const prompt = `
 You are an expert e-commerce search optimizer.
@@ -54,7 +54,7 @@ Return ONLY the optimized keywords. Do not include any quotes, markdown, or othe
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
 
       const context = JSON.stringify(structuredProducts, null, 2);
 
