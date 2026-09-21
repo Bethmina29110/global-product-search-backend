@@ -21,6 +21,23 @@ export class RagService {
 
     this.logger.log(`Search Module returned ${allProducts.length} products for query: "${query}"`);
 
+    if (allProducts.length === 0) {
+      return {
+        query,
+        meta: {
+          page: 1,
+          limit: 0,
+          total: 0,
+        },
+        topRecommendation: {
+          title: 'No products found',
+          reason: 'Search returned no results.',
+          score: 0,
+        },
+        products: [],
+      };
+    }
+
     // Step 2: Semantic Ranking — delegate to Ranking Module (replaces hardcoded slice)
     const { top: top15, rest: remainingProducts } = await this.rankingService.rankProducts(query, allProducts, 15) as any;
 

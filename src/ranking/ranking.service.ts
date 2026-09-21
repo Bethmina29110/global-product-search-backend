@@ -72,8 +72,8 @@ export class RankingService implements OnModuleInit {
    * Ranks products by semantic similarity to the query using all-MiniLM-L6-v2.
    * Returns the top N most relevant products.
    */
-  async rankProducts(query: string, products: any[], topN = 15): Promise<any[]> {
-    if (!products || products.length === 0) return [];
+  async rankProducts(query: string, products: any[], topN = 15): Promise<{ top: any[]; rest: any[] }> {
+    if (!products || products.length === 0) return { top: [], rest: [] };
 
     await this.loadPipeline();
 
