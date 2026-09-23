@@ -26,8 +26,12 @@ export class GeminiService {
       const prompt = `
 You are an expert e-commerce search optimizer.
 The user has provided a conversational search query. Your job is to extract the core product keywords to be used in a Google Shopping search.
-Do not include conversational filler words like "I want", "recommend me", "show me", "where can I find", etc.
-Keep it concise and optimized for an exact-match keyword search engine.
+
+CRITICAL RULES:
+1. Generate ONLY 2 to 4 broad, high-level keywords.
+2. DO NOT include overly specific constraints or words like "workstation", "budget", "best", "cheap" unless absolutely central to the core product type.
+3. Broad keywords yield better results on Google Shopping. For example, if the user asks "I need a laptop for programming, Docker and virtual machines", return "programming laptop" or "laptop 32gb ram" rather than a long string of specific constraints.
+4. Do not include conversational filler words like "I want", "recommend me", "show me", "where can I find", etc.
 
 User Query: "${query}"
 
