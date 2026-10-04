@@ -14,6 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 1.5 Remove .git and other unnecessary folders to speed up SCP transfer
+      - name: Clean up unnecessary files before transfer
+        run: rm -rf .git .github node_modules dist coverage test
+
+
       # 2. Copy the backend source code to Hostinger
       - name: Upload backend to Hostinger
         uses: appleboy/scp-action@v0.1.7
