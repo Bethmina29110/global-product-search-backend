@@ -1,42 +1,93 @@
-name: Deploy to EC2
+name: Deploy Bethimna Backend
 
 on:
   push:
     branches:
-      - deploy # Change this to your main branch name if different
+      - deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy via SSH
+      # 1. Get the latest code from the deploy branch
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Copy the backend source code to Hostinger
+      - name: Upload backend to Hostinger
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          source: "."
+          target: "/root/bethimna/backend"
+          overwrite: true
+          rm: false
+
+      # 3. Install, build and restart the backend
+      - name: Build and restart Bethimna
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
           script: |
-            echo "Starting deployment..."
-            
-            # Navigate to your project directory
-            echo "Navigating to project directory..."
-            cd ~/bethimna/backend
-            
-            # Pull latest changes from the deploy branch
-            echo "Pulling latest code..."
-            git pull origin deploy
-            
-            # Install dependencies
+            echo "======================================"
+            echo "Starting Bethimna deployment"
+            echo "======================================"
+
+            cd /root/bethimna/backend
+
+            echo "Node version:"
+            node -v
+
+            echo "NPM version:"
+            npm -v
+
+            echo "Checking environment file..."
+            if [ ! -f .env ]; then
+              echo "ERROR: .env file not found!"
+              exit 1
+            fi
+
+            echo ".env exists."
+
             echo "Installing dependencies..."
             npm install
-            
-            # Build the project
-            echo "Building project..."
-            npm run build
-            
-            # Restart the application using PM2
-            echo "Restarting application..."
-            pm2 restart bethimna-backend || pm2 start dist/main.js --name "bethimna-backend"
-            
-            echo "Deployment finished successfully!"
 
+            echo "Building NestJS application..."
+            npm run build
+
+            echo "Checking build..."
+            if [ ! -f dist/main.js ]; then
+              echo "ERROR: dist/main.js was not created!"
+              exit 1
+            fi
+
+            echo "Build successful."
+
+            echo "Checking existing PM2 process..."
+
+            if pm2 describe bethimna-backend > /dev/null 2>&1; then
+              echo "Restarting existing Bethimna PM2 process..."
+              pm2 restart bethimna-backend
+            else
+              echo "Starting Bethimna with PM2..."
+              pm2 start dist/main.js --name bethimna-backend
+            fi
+
+            echo "Saving PM2 process list..."
+            pm2 save
+
+            echo "Waiting for application..."
+            sleep 5
+
+            echo "PM2 status:"
+            pm2 status
+
+            echo "======================================"
+            echo "Bethimna deployment completed!"
+            echo "======================================"
